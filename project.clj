@@ -3,6 +3,13 @@
   :url "https://github.com/danielappelt/edisyn-beatstep/"
   :license {:name "Apache License, Version 2.0"
             :url "http://www.apache.org/licenses/LICENSE-2.0"}
-  :dependencies [[org.clojure/clojure "1.10.0"]]
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [uk.co.xfactory-librarians/coremidi4j "1.1"]]
+  :plugins [[lein-javac-resources "0.1.1"]]
+  :hooks [leiningen.javac-resources]
+  :source-paths ["src/clojure"]
+  :java-source-paths ["src/edisyn"]
+  :resource-paths ["resources"]
   :target-path "target/%s"
+  :main edisyn.Edisyn
   :profiles {:uberjar {:aot :all}})

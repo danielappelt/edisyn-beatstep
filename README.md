@@ -10,9 +10,17 @@ FIXME: Download from https://github.com/danielappelt/edisyn-beatstep/releases.
 
 ## Usage
 
+To run from source:
+
+1. Install leiningen from https://leiningen.org
+2. Clone this repository
+3. `lein run`
+
 FIXME: explanation
 
-    $ java -jar edisyn-beatstep-0.1.0-standalone.jar [args]
+    $ lein uberjar
+    $ cd target/uberjar
+    $ java -jar edisyn-beatstep-0.1.0-standalone.jar
 
 ## Options
 
