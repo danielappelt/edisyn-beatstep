@@ -1,0 +1,48 @@
+<html><head></head>
+<body>
+
+
+<h1>Kawai K4</h1> 
+<h2>Drum Patch Editor</h2>
+
+<p>This editor will work with the <b>Kawai K4</b> and the <b>Kawai K4r</b>.
+
+<p><b>Communicating with Edisyn</b> Set your K4 to receive Program Changes (RCV PGM) and Exclusive (RCV EXCL).  See pages 79 and 80 of the manual.  Set the K4's MIDI RCV channel to the same as Edisyn's Send Channel.  Set the K4's Drum channel to be the same as the "MIDI Channel" knob in the Patch Editor panel; you can do this easily by just changing the knob to some appropriate value.  Note that the K4 Drum Channel shouldn't be set to the same thing as the K4 MIDI RCV channel: otherwise you'll hear both drums and keyboard notes.  And I wouldn't set either of them to OMNI.  Also see the important <b>First Gotcha</b> below, as it relates to the Drum Channel.
+
+<p><b>Hints</b>
+
+<ul>
+<li>
+<p><li>Though Edisyn will use the K4's standard RCV Channel to send information, if you play a note on your controller (or other message that's passed through) Edisyn will route it to the Drum Channel.  That way you can play drums on the K4 even if your controller can't send MIDI data out 
+<p><li>When you play a note (via the <b>Send Test Note</b> menu option) the note played is the currently selected drum key.
+
+<p><li>You can select a drum key either via the dial or by the on-screen keyboard.  The widgets shown below reflect the settings for that particular key.
+
+<p><li>It's rare for you to want your drum keys to vary in their submix.  So when you change the submix, you can press <b>Apply to All</b> to set all the drum keys to that new value.
+
+<p><li>The following effect patches are not used by any standard single, multi, or drum patch:  3, 10, 11, 12, 14, 15, 21, 22, 23, 28
+
+<p><li>In all standard effect patches, Submix H is always "off".  
+</ul>
+
+
+<p><b>Gotchas</b>
+
+<ul>
+<li>Due to a bug, the Kawai K4/K4r does not properly tell Edisyn what the Drum MIDI Channel is when sending Edisyn a patch.  As a result the "MIDI Channel" knob will not change.  You'll need to set it manually in the patch panel: when you change the knob, it'll send a message to the K4/K4r to change the Drum Channel to match.
+
+<p><li>
+Unfortunately drums don't have their own effects/output: they will use whatever effect/output the current single or multi patch is using.
+
+<p><li>When you update a parameter, it's not reflected on the K4's LCD until you move to something else and back again.
+</ul>
+
+<p><table border=0 cellpadding=0 cellspacing=5>
+<tr>
+<td align=right>By&nbsp;&nbsp;&nbsp;
+<td><b>Sean Luke</b>
+<tr>
+<td align=right>Date&nbsp;&nbsp;&nbsp;
+<td>August 2017
+</table>
+
