@@ -10,11 +10,13 @@ FIXME: Download from https://github.com/danielappelt/edisyn-beatstep/releases.
 
 ## Usage
 
+Java JRE version 9 or newer is needed to run the application.
+
 To run from source:
 
 1. Install leiningen from https://leiningen.org
 2. Clone this repository
-3. `lein run`
+3. `lein do clean, with-profile compile compile, run`
 
 FIXME: explanation
 

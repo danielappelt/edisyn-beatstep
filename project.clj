@@ -1,4 +1,4 @@
-(defproject edisyn-beatstep "0.1.0-SNAPSHOT"
+(defproject edisyn-beatstep "0.1.0"
   :description "Edisyn service provider to support Arturia Beatstep"
   :url "https://github.com/danielappelt/edisyn-beatstep/"
   :license {:name "Apache License, Version 2.0"
@@ -11,5 +11,9 @@
   :java-source-paths ["src/edisyn"]
   :resource-paths ["resources"]
   :target-path "target/%s"
+  :compile-path "%s/classes"
+  :aot [edisyn.synth.arturiabeatstep.ArturiaBeatstep]
   :main edisyn.Edisyn
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:compile {:resource-paths ^:replace ["compile-resources"]
+                       :target-path "target/default"}
+             :uberjar {:aot :all}})
