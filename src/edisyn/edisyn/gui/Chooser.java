@@ -17,7 +17,7 @@ import java.awt.event.*;
    A wrapper for JComboBox which edits and responds to changes to a numerical value
    in the model. The numerical value is assumed to of a min/max range 0...n-1,
    which corresponds to the n elements displayed in the JComboBox.  However you can
-   change this an in fact map each element to its own special integer.
+   change this and in fact map each element to its own special integer.
         
    For the Mac, the JComboBox is made small (JComponent.sizeVariant = small), but this
    probably won't do anything in Linux or Windows.
@@ -74,24 +74,24 @@ public class Chooser extends NumericalComponent
         // it's possible that we're sharing a parameter
         // (see for example Blofeld Parameter 9), so here
         // we need to make sure we're within bounds
-        if (state < 0)
-            state = 0;
-        if (state > vals.length)
-            state = vals.length - 1;
-                
-        // look for it...
+        int distance = Integer.MAX_VALUE;
+        int index = 0;
+
+        // look for the next best value..
         for(int i = 0; i < vals.length; i++)
-            if (vals[i] == state)
+            if(Math.abs(vals[i] - state) < distance)
                 {
-                // This is due to a Java bug.
-                // Unlike other widgets (like JCheckBox), JComboBox calls
-                // the actionlistener even when you programmatically change
-                // its value.  OOPS.
-                setCallActionListener(false);
-                combo.setSelectedIndex(i);
-                setCallActionListener(true);
-                return;
+                distance = Math.abs(vals[i] - state);
+                index = i;
                 }
+
+        // This is due to a Java bug.
+        // Unlike other widgets (like JCheckBox), JComboBox calls
+        // the actionlistener even when you programmatically change
+        // its value.  OOPS.
+        setCallActionListener(false);
+        combo.setSelectedIndex(index);
+        setCallActionListener(true);
         }
 
     public Insets getInsets() 
@@ -116,6 +116,11 @@ public class Chooser extends NumericalComponent
         The elements in the box are given by elements, with images in icons, and their corresponding numerical
         values in the model 0...n.   Note that OS X won't behave properly with icons larger than about 34 high. */
     public Chooser(String _label, final Synth synth, final String key, String[] elements, ImageIcon[] icons)
+        {
+        this(_label, synth, key, elements, null, icons);
+        }
+
+    public Chooser(String _label, final Synth synth, final String key, String[] elements, int[] values, ImageIcon[] icons)
         {
         super(synth, key);
                 
@@ -157,7 +162,7 @@ public class Chooser extends NumericalComponent
         combo.setFont(Style.SMALL_FONT());
         combo.setMaximumRowCount(33);           // 33, not 32, to accommodate modulation destinations for Matrix 1000
         
-        setElements(_label, elements);
+        setElements(_label, elements, values);
 
         this.icons = icons;
         this.labels = elements;
@@ -190,7 +195,7 @@ public class Chooser extends NumericalComponent
                 // its value.  OOPS.
                 if (callActionListener)
                     {
-                    setState(combo.getSelectedIndex());
+                    setState(vals[combo.getSelectedIndex()]);
                     }
                 }
             });
@@ -254,6 +259,11 @@ public class Chooser extends NumericalComponent
         
     public void setElements(String _label, String[] elements)
         {
+        setElements(_label, elements, null);
+        }
+
+    public void setElements(String _label, String[] elements, int[] values)
+        {
         setCallActionListener(false);
         label.setText("  " + _label);
         combo.removeAllItems();
@@ -261,16 +271,34 @@ public class Chooser extends NumericalComponent
         for(int i = 0; i < elements.length; i++)
             combo.addItem(elements[i]);
 
-        vals = new int[elements.length];
-        for(int i = 0; i < vals.length; i++) 
-            vals[i] = i;
-                        
-        setMin(0);
-        setMax(elements.length - 1);
+        int min = Integer.MAX_VALUE;
+        int max = Integer.MIN_VALUE;
+
+        if(values == null || values.length != elements.length)
+            {
+            vals = new int[elements.length];
+            for(int i = 0; i < vals.length; i++)
+                vals[i] = i;
+
+            min = vals[0];
+            max = vals[vals.length - 1];
+            }
+        else
+            {
+            vals = values;
+            for(int i = 0; i < vals.length; i++)
+                {
+                if(vals[i] < min) min = vals[i];
+                if(vals[i] > max) max = vals[i];
+                }
+            }
+
+        setMin(min);
+        setMax(max);
         setCallActionListener(true);
         
         combo.setSelectedIndex(0);
-        setState(combo.getSelectedIndex());
+        setState(vals[0]);
         revalidate();
         repaint();
         }
