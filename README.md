@@ -6,11 +6,15 @@ FIXME: description
 
 ## Installation
 
-FIXME: Download from https://github.com/danielappelt/edisyn-beatstep/releases.
+Download from https://github.com/danielappelt/edisyn-beatstep/releases.
 
 ## Usage
 
 Java JRE version 9 or newer is needed to run the application.
+
+To run the JAR
+
+    `java -jar edisyn-beatstep-0.1.0-standalone.jar`
 
 To run from source:
 
@@ -18,11 +22,10 @@ To run from source:
 2. Clone this repository
 3. `lein do clean, with-profile compile compile, run`
 
-FIXME: explanation
+To create a JAR from source:
 
-    $ lein uberjar
-    $ cd target/uberjar
-    $ java -jar edisyn-beatstep-0.1.0-standalone.jar
+1. Follow 1. and 2. from above
+3. `lein uberjar`
 
 ## Options
 

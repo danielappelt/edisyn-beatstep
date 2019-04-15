@@ -16,4 +16,9 @@
   :main edisyn.Edisyn
   :profiles {:compile {:resource-paths ^:replace ["compile-resources"]
                        :target-path "target/default"}
-             :uberjar {:aot :all}})
+             :repl {:resource-paths ^:replace ["compile-resources"]
+                    :main nil}
+             :uberjar {:aot :all
+                       :omit-source true
+                       :resource-paths ^:replace []
+                       :filespecs [{:type :paths :paths ["resources"]}]}})
