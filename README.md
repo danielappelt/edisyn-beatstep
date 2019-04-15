@@ -14,7 +14,7 @@ Java JRE version 9 or newer is needed to run the application.
 
 To run the JAR
 
-    `java -jar edisyn-beatstep-0.1.0-standalone.jar`
+    java -jar edisyn-beatstep-0.1.0-standalone.jar
 
 To run from source:
 
@@ -39,11 +39,11 @@ FIXME: listing of options this app accepts.
 
 ...
 
-### Any Other Sections
-### That You Think
-### Might be Useful
-
 ## License
 
 Copyright © 2019 Daniel Appelt
+Licensed under the Apache License version 2.0
+
+This work is based on synthesizer patch editor [Edisyn](https://github.com/eclab/edisyn) which is included as a git subtree in [src/edisyn](src/edisyn). Edisyn is
+Copyright 2017 by Sean Luke
 Licensed under the Apache License version 2.0
