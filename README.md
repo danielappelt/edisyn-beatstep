@@ -14,7 +14,7 @@ Java JRE version 9 or newer is needed to run the application.
 
 To run the JAR
 
-    java -jar edisyn-beatstep-0.1.0-standalone.jar
+    java -jar edisyn-beatstep-<version>-standalone.jar
 
 To run from source:
 

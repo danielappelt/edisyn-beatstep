@@ -1,4 +1,4 @@
-(defproject edisyn-beatstep "0.1.0"
+(defproject edisyn-beatstep "0.1.1"
   :description "Edisyn service provider to support Arturia Beatstep"
   :url "https://github.com/danielappelt/edisyn-beatstep/"
   :license {:name "Apache License, Version 2.0"
@@ -20,5 +20,9 @@
                     :main nil}
              :uberjar {:aot :all
                        :omit-source true
+                       ;; Do not provide compile-time resources in order to
+                       ;; avoid a circular conflict.
                        :resource-paths ^:replace []
-                       :filespecs [{:type :paths :paths ["resources"]}]}})
+                       :filespecs [{:type :paths :paths ["resources"]}]
+                       :jar-exclusions [#"^(install|jar|libraries|docs)"]
+                       :jar-inclusions [#"^docs/manual/Edisyn.pdf"]}})

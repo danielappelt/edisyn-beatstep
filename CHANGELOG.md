@@ -2,23 +2,16 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+
+## [v0.1.1] - 2019-04-16
 ### Changed
-- Add a new arity to `make-widget-async` to provide a different widget shape.
+- Exclude unnecessary edisyn artifacts from JARs
+- Cleanup code
+- Start using this change log
 
-## [0.1.1] - 2019-04-05
-### Changed
-- Documentation on how to make the widgets.
-
-### Removed
-- `make-widget-sync` - we're all async, all the time.
-
+## v0.1.0 - 2019-04-15
 ### Fixed
-- Fixed widget maker to keep working when daylight savings switches over.
+- uberjar task now creates a working JAR including the editor
 
-## 0.1.0 - 2019-04-05
-### Added
-- Files from the new template.
-- Widget maker public API - `make-widget-sync`.
-
-[Unreleased]: https://github.com/your-name/edisyn-beatstep/compare/0.1.1...HEAD
-[0.1.1]: https://github.com/your-name/edisyn-beatstep/compare/0.1.0...0.1.1
+[Unreleased]: https://github.com/danielappelt/edisyn-beatstep/compare/v0.1.1...HEAD
+[v0.1.1]: https://github.com/danielappelt/edisyn-beatstep/compare/v0.1.0...v0.1.1
