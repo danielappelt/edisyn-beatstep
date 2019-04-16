@@ -1,7 +1,3 @@
-;; export CLASSPATH=libraries/coremidi4j-1.1.jar:.; javac edisyn/*.java edisyn/*/*.java edisyn/*/*/*.java
-;; export CLASSPATH=libraries/clojure-1.9.0.jar:libraries/coremidi4j-1.1.jar:libraries/spec.alpha-0.2.176.jar:.; java edisyn/Edisyn
-
-;; TODO: Clojure uses hyphenated lowercase
 (ns edisyn.synth.arturiabeatstep.ArturiaBeatstep
   (:import [edisyn.gui Category Chooser HBox LabelledDial VBox Style SynthPanel])
   (:gen-class
@@ -18,21 +14,18 @@
 ;; (defn beatstep-getDefaultResourceFileName [this] "ArturiaBeatstep.init")
 
 (def encoder-accelerations (into-array ["slow" "medium" "fast"]))
+;; "full" only creates values 0 or 127
 (def velocity-curves (into-array ["linear" "logarithmic" "exponential" "full"]))
 
-;; Global MIDI channel – F0 00 20 6B 7F 42 02 00 50 0B nn F7 (MIDI channel-1, 0-15)
-;; CV/Gate interface receive channel – F0 00 20 6B 7F 42 02 00 50 0C nn F7 (MIDI channel-1, 0-15)
-;; Knob acceleration – F0 00 20 6B 7F 42 02 00  41 04 nn F7 (0=slow, 1=medium, 2=fast)
-;; Pad velocity curve – F0 00 20 6B 7F 42 02 00  41 03 nn F7 (0=linear, 1=logarithmic, 2=exponential, 3=full – I prefer exponential).
 (defn create-global [this color]
   (doto (HBox.)
     (.add (LabelledDial. "Global MIDI Channel" this (str 0x06 "_" 0x40) color 0 16))
-    ;; TODO: value 41 -> Global MIDI Channel
+    ;; TODO: Channel value 41 -> follows Global MIDI Channel
     (.add (LabelledDial. "CV/Gate Channel" this (str 0x0c "_" 0x50) color 0 16))
     (.add (Chooser. "Encoder acceleration" this (str 0x04 "_" 0x41) encoder-accelerations))
     (.add (Chooser. "Pad velocity curve" this (str 0x03 "_" 0x41) velocity-curves))))
 
-;; User scale
+;; TODO: Add user scale settings
 ;; Note on:  0a 3d, 0a 39, 0a 31, 0a 21, 0a 01, 0b 3e, 0b 3c, 0b 38, 0b 30, 0b 20, 0b 00
 ;; Note off: 0a 03, 0a 07, 0a 0f, 0a 1f, 0a 3f, 0b 01, 0b 03, 0b 07, 0b 0f, 0b 1f, 0b 3f
 
@@ -41,7 +34,7 @@
                     {:label "RPN/NRPN", :value 0x04, :comps [:channel :coarse :lsb :msb :param-type]}])
 ;; TODO: low/high values are only relevant for Absolute mode
 (def encoder-behaviour (into-array ["Absolute" "Relative (64)" "Relative (0)" "Relative (16)"]))
-;; TODO: coarseness determines whether MSB or LSB of NRPN/RPN is sent
+;; TODO: coarseness determines whether MSB or LSB of NRPN/RPN is sent?
 (def encoder-coarseness {"Coarse" 0x06, "Fine" 0x26})
 (def encoder-param-type (into-array ["NRPN" "RPN"]))
 
@@ -53,7 +46,7 @@
 (defn create-encoder-comps [this index color]
   (let [comps {;; TODO: value 41 -> Global MIDI Channel
                :channel (LabelledDial. "MIDI Channel" this (str index "_" 0x02) color 0 16)
-               ;; Please note that the most restricted component per key might define the key's value range!
+               ;; Please note that, in general, the most restricted component per key will define the key's value range!
                :coarse (create-mapped-chooser "Coarse / Fine" this (str index "_" 0x03) encoder-coarseness)
                :cc (LabelledDial. "CC" this (str index "_" 0x03) color 0 127)
                :low (LabelledDial. "Low Value" this (str index "_" 0x04) color 0 127)
@@ -130,13 +123,11 @@
                                         (create-pad-comps this (+ 0x70 index) color)))))
     vbox))
 
-(def button-names {0x58 "Start", 0x59 "Stop", 0x5A "Cntrl/Seq", 0x5B "Ext. Sync",
-                   0x5C "Recall", 0x5D "Store", 0x5E "Shift", 0x5F "Chan"})
-
 (defn create-buttons [this color]
-  (let [vbox (VBox.)]
-    (dorun (for [index (range 8)]
-             (.add vbox (create-type-ui this (button-names (+ 0x58 index))
+  (let [vbox (VBox.)
+        labels ["Start" "Stop" "Cntrl/Seq" "Ext. Sync" "Recall" "Store" "Shift" "Chan"]]
+    (dorun (for [index (range (count labels))]
+             (.add vbox (create-type-ui this (labels index)
                                         (str (+ 0x58 index) "_" 0x01)
                                         pad-types
                                         (create-pad-comps this (+ 0x58 index) color)))))
@@ -166,7 +157,7 @@
                                  (.add (create-pads this (Style/COLOR_C)))) java.awt.BorderLayout/CENTER))))
 
 ;; For the sysex "specifiction" see
-;; https://www.untergeek.de/2014/11/taming-arturias-beatstep-sysex-codes-for-programming-via-ipad/#Sysex_for_the_Pads
+;; https://www.untergeek.de/2014/11/taming-arturias-beatstep-sysex-codes-for-programming-via-ipad/
 (def sysex-prefix [0xF0 0x00 0x20 0x6B 0x7F 0x42])
 
 ;; Get F0 00 20 6B 7F 42 01 00 pp cc F7
@@ -174,29 +165,25 @@
   ;; (println "get" (format "%02x %02x" pp cc))
   (concat sysex-prefix [0x01 0x00 pp cc 0xF7]))
 
-;; Set F0 00 20 6B 7F 42 02 00 pp cc vv F7 (cc is the number of the controller, pp parameter, vv value)
+;; Set F0 00 20 6B 7F 42 02 00 pp cc vv F7 (cc: number of the controller, pp: parameter, vv: value)
 (defn sysex-set-param [pp cc vv]
   ;; (println "set" (format "%02x %02x %02x" pp cc vv))
   (concat sysex-prefix [0x02 0x00 pp cc vv 0xF7]))
 
 (defn sysex-recall [number]
-  ;; (println "recall" number)
   (concat sysex-prefix [0x05 number 0xF7]))
 
 (defn sysex-store [number]
-  ;; (println "store" number)
   (concat sysex-prefix [0x06 number 0xF7]))
 
 ;; (defn beatstep-getSendsAllParametersInBulk [this] false)
 (defn beatstep-getPauseBetweenMIDISends [this] 1)
-;; (defn beatstep-getPauseBetweenSysexFragments [this] 1) ;; ms
-;; (defn beatstep-getSysexFragmentSize [this] 11)
 ;; TODO: maybe the following is not needed, or we need to adopt for it elsewhere
 ;; (defn beatstep-getNumSysexDumpsPerPatch [] (* 16 6))
 
 ;; Recognize sysex message bundle making up a complete beatstep patch -> byte[] data
 (defn beatstep-recognize [data]
-  ;; TODO: Check for BULK data - at least using data length. 16 pads * 6 parameters * 12 bytes
+  ;; TODO: Check for BULK data at least using data length. 16 pads * 6 parameters * 12 bytes + x
   ;; (println "recognize:")
   ;; (println (seq data))
   (and (= (count data) (* 16 6 12)) (= (take 6 data) sysex-prefix)))
@@ -208,14 +195,11 @@
 (defn beatstep-set-param [this key]
   (let [[cc pp] (map #(Integer/valueOf %) (clojure.string/split key #"_"))
         vv (.get (.getModel this) key)]
-    ;; vv needs to be mapped to the correct sysex value from 0..n
-    ;; (sysex-set-param pp cc (map-value cc pp vv))))
     (sysex-set-param pp cc vv)))
 
 (defn beatstep-parseParameter [this data]
   ;; Set parameter F0 00 20 6B 7F 42 02 00 pp cc vv F7
   ;; pp parameter, cc pad/encoder, vv value
-  ;; vv needs to be mapped from sysex to the correct display value 0..n
   ;; (println "parseParameter:")
   ;; (println (seq data))
   (let [[pp cc vv] (drop 8 data)]
@@ -244,9 +228,7 @@
   (.simplePause this 10))
 
 ;; Equivalent of parseParameter. TODO: we provide the parameter type here so
-;; that Clojure can distinguish it from emit (re)defined below. Otherwise, we
-;; could redefine emitAll(key, status) here in order to avoid Clojure confusing
-;; the right function to pick.
+;; that Clojure can distinguish it from other emit implementations.
 (defn beatstep-emit-String [this key]
   (if (not= key "number") (byte-array (beatstep-set-param this key))))
 
