@@ -133,7 +133,9 @@
                                         (create-pad-comps this (+ 0x58 index) color)))))
     vbox))
 
-(defn beatstep-setup [this]
+(defn beatstep-setup
+  "This post init function for the namespace is used to implement the editor's construction."
+  [this]
   (let [vbox (VBox.)]
     ;; Not all parameters on global tab seem to be saved in a Beatstep preset. It's more likely
     ;; that Beatstep has three independent patch categories: global, ctrl, seq?!
@@ -151,10 +153,12 @@
                              (.add vbox java.awt.BorderLayout/CENTER))))
   (.addTab this "Encoder" (doto (SynthPanel. this)
                             (.add (doto (VBox.)
-                                    (.add (create-encoders this (Style/COLOR_B)))) java.awt.BorderLayout/CENTER)))
+                                    (.add (doto (Category. this "Encoders" (Style/COLOR_B))
+                                            (.add (create-encoders this (Style/COLOR_B)))) java.awt.BorderLayout/CENTER)))))
   (.addTab this "Pads" (doto (SynthPanel. this)
                          (.add (doto (VBox.)
-                                 (.add (create-pads this (Style/COLOR_C)))) java.awt.BorderLayout/CENTER))))
+                                 (.add (doto (Category. this "Pads" (Style/COLOR_C))
+                                         (.add (create-pads this (Style/COLOR_C)))) java.awt.BorderLayout/CENTER))))))
 
 ;; For the sysex "specifiction" see
 ;; https://www.untergeek.de/2014/11/taming-arturias-beatstep-sysex-codes-for-programming-via-ipad/
