@@ -13,15 +13,19 @@
 ;; TODO
 ;; (defn beatstep-getDefaultResourceFileName [this] "ArturiaBeatstep.init")
 
+;; value 41 -> Global MIDI Channel
+(def channels (reduce #(conj %1 {:label (str (+ %2 1)) :value %2})
+                      [{:label "Global Channel" :value 0x41}] (range 16)))
 (def encoder-accelerations (into-array ["slow" "medium" "fast"]))
 ;; "full" only creates values 0 or 127
 (def velocity-curves (into-array ["linear" "logarithmic" "exponential" "full"]))
 
 (defn create-global [this color]
   (doto (HBox.)
-    (.add (LabelledDial. "Global MIDI Channel" this (str 0x06 "_" 0x40) color 0 16))
-    ;; TODO: Channel value 41 -> follows Global MIDI Channel
-    (.add (LabelledDial. "CV/Gate Channel" this (str 0x0c "_" 0x50) color 0 16))
+    (.add (Chooser. "Global MIDI Channel" this (str 0x06 "_" 0x40) (into-array (map #(str (+ % 1)) (range 16)))))
+    (.add (Chooser. "CV/Gate Channel" this (str 0x0c "_" 0x50)
+                    (into-array (map :label channels))
+                    (int-array (map :value channels)) nil))
     (.add (Chooser. "Encoder acceleration" this (str 0x04 "_" 0x41) encoder-accelerations))
     (.add (Chooser. "Pad velocity curve" this (str 0x03 "_" 0x41) velocity-curves))))
 
@@ -38,16 +42,14 @@
 (def encoder-coarseness {"Coarse" 0x06, "Fine" 0x26})
 (def encoder-param-type (into-array ["NRPN" "RPN"]))
 
-(defn create-mapped-chooser [label this key mapping]
-  (Chooser. label this key
-            (into-array (keys mapping))
-            (int-array (vals mapping)) nil))
-
 (defn create-encoder-comps [this index color]
-  (let [comps {;; TODO: value 41 -> Global MIDI Channel
-               :channel (LabelledDial. "MIDI Channel" this (str index "_" 0x02) color 0 16)
+  (let [comps {:channel (Chooser. "MIDI Channel" this (str index "_" 0x02)
+                                  (into-array (map :label channels))
+                                  (int-array (map :value channels)) nil)
                ;; Please note that, in general, the most restricted component per key will define the key's value range!
-               :coarse (create-mapped-chooser "Coarse / Fine" this (str index "_" 0x03) encoder-coarseness)
+               :coarse (Chooser. "Coarse / Fine" this (str index "_" 0x03)
+                                 (into-array (keys encoder-coarseness))
+                                 (int-array (vals encoder-coarseness)) nil)
                :cc (LabelledDial. "CC" this (str index "_" 0x03) color 0 127)
                :low (LabelledDial. "Low Value" this (str index "_" 0x04) color 0 127)
                :lsb (LabelledDial. "LSB" this (str index "_" 0x04) color 0 127)
@@ -74,8 +76,9 @@
 
 ;; Pad definition. Create pad parameter UIs per pad index
 (defn create-pad-comps [this index color]
-  {;; TODO: value 41 -> Global MIDI Channel
-   :channel (LabelledDial. "MIDI Channel" this (str index "_" 0x02) color 0 16)
+  {:channel (Chooser. "MIDI Channel" this (str index "_" 0x02)
+                      (into-array (map :label channels))
+                      (int-array (map :value channels)) nil)
    :command (Chooser. "MMC Command" this (str index "_" 0x03) mmc-commands)
    :cc (LabelledDial. "CC" this (str index "_" 0x03) color 0 127)
    :note (LabelledDial. "Note" this (str index "_"  0x03) color 0 127)
