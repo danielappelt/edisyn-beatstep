@@ -16,6 +16,39 @@
 ;; value 41 -> Global MIDI Channel
 (def channels (reduce #(conj %1 {:label (str (+ %2 1)) :value %2})
                       [{:label "Global Channel" :value 0x41}] (range 16)))
+;; See https://de.wikipedia.org/wiki/Musical_Instrument_Digital_Interface#Controller
+(def cc-labels
+  (let [msb-lsb ["Bank Select", "Modulation", "Breath Controller", "Undefined"
+                 "Foot Controller", "Portamento Time", "Data Byte", "Main Volume"
+                 "Balance", "Undefined", "Panorama", "Expression"
+                 "Effect Control 1", "Effect Control 2", "Undefined", "Undefined"
+                 "General Purpose Controller 1", "General Purpose Controller 2", "General Purpose Controller 3", "General Purpose Controller 4"
+                 "Undefined", "Undefined", "Undefined", "Undefined"
+                 "Undefined", "Undefined", "Undefined", "Undefined"
+                 "Undefined", "Undefined", "Undefined", "Undefined"]]
+    (into-array
+     (map #(str %1 " - " %2)
+          (range 128)
+          (concat
+           (apply concat (for [t ["MSB" "LSB"]] (map #(str % " " t) msb-lsb)))
+           ["Hold 1", "Portamento", "Sostenuto", "Soft Pedal"
+            "Legato Footswitch", "Hold 2", "Sound Controller 1 (Sound Variation)", "Sound Controller 2 (Harmonic Content)"
+            "Sound Controller 3 (Release Time)", "Sound Controller 4 (Attack Time)", "Sound Controller 5 (Brightness)", "Sound Controller 6"
+            "Sound Controller 7", "Sound Controller 8", "Sound Controller 9", "Sound Controller 10"
+            "General Purpose Controller 5", "General Purpose Controller 6", "General Purpose Controller 7", "General Purpose Controller 8"
+            "Portamento Control", "Undefined", "Undefined", "Undefined"
+            "Undefined", "Undefined", "Undefined", "Effect 1 Depth"
+            "Effect 2 Depth", "Effect 3 Depth", "Effect 4 Depth", "Effect 5 Depth"
+            "Data Increment RPN/NRPN", "Data Decrement RPN/NRPN", "NRPN LSB", "NRPN MSB"
+            "RPN LSB", "RPN MSB", "Undefined", "Undefined"
+            "Undefined", "Undefined", "Undefined", "Undefined"
+            "Undefined", "Undefined", "Undefined", "Undefined"
+            "Undefined", "Undefined", "Undefined", "Undefined"
+            "Undefined", "Undefined", "Undefined", "Undefined"
+            "All Sounds Off", "Controller Reset", "Local Control On/Off"
+            "All Notes Off",  "Omni Off", "Omni On", "Mono On / Poly Off"
+            "Poly On / Mono Off"])))))
+
 (def encoder-accelerations (into-array ["slow" "medium" "fast"]))
 ;; "full" only creates values 0 or 127
 (def velocity-curves (into-array ["linear" "logarithmic" "exponential" "full"]))
@@ -50,7 +83,7 @@
                :coarse (Chooser. "Coarse / Fine" this (str index "_" 0x03)
                                  (into-array (keys encoder-coarseness))
                                  (int-array (vals encoder-coarseness)) nil)
-               :cc (LabelledDial. "CC" this (str index "_" 0x03) color 0 127)
+               :cc (Chooser. "CC" this (str index "_" 0x03) cc-labels)
                :low (LabelledDial. "Low Value" this (str index "_" 0x04) color 0 127)
                :lsb (LabelledDial. "LSB" this (str index "_" 0x04) color 0 127)
                :high (LabelledDial. "High Value" this (str index "_" 0x05) color 0 127)
@@ -80,7 +113,7 @@
                       (into-array (map :label channels))
                       (int-array (map :value channels)) nil)
    :command (Chooser. "MMC Command" this (str index "_" 0x03) mmc-commands)
-   :cc (LabelledDial. "CC" this (str index "_" 0x03) color 0 127)
+   :cc (Chooser. "CC" this (str index "_" 0x03) cc-labels)
    :note (LabelledDial. "Note" this (str index "_"  0x03) color 0 127)
    :prgchange (LabelledDial. "Program Change" this (str index "_" 0x03) color 0 127)
    :off (LabelledDial. "Off Value" this (str index "_" 0x04) color 0 127)
