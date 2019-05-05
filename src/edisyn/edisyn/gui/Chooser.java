@@ -104,12 +104,27 @@ public class Chooser extends NumericalComponent
             return Style.CHOOSER_INSETS(); 
         }
 
+    static int[] buildDefaultValues(String[] elements)
+        {
+        int[] values = new int[elements.length];
+        for(int i = 0; i < values.length; i++) values[i] = i;
+        return values;
+        }
+
     /** Creates a JComboBox with the given label, modifying the given key in the Style.
         The elements in the box are given by elements, and their corresponding numerical
         values in the model 0...n. */
     public Chooser(String _label, Synth synth, String key, String[] elements)
         {
-        this(_label, synth, key, elements, null);
+        this(_label, synth, key, elements, buildDefaultValues(elements));
+        }
+
+    /** Creates a JComboBox with the given label, modifying the given key in the Style.
+        The elements in the box are given by elements, and their corresponding numerical
+        values in the model 0...n. */
+    public Chooser(String _label, Synth synth, String key, String[] elements, int[] values)
+        {
+        this(_label, synth, key, elements, values, null);
         }
 
     /** Creates a JComboBox with the given label, modifying the given key in the Style.
@@ -117,7 +132,7 @@ public class Chooser extends NumericalComponent
         values in the model 0...n.   Note that OS X won't behave properly with icons larger than about 34 high. */
     public Chooser(String _label, final Synth synth, final String key, String[] elements, ImageIcon[] icons)
         {
-        this(_label, synth, key, elements, null, icons);
+        this(_label, synth, key, elements, buildDefaultValues(elements), icons);
         }
 
     public Chooser(String _label, final Synth synth, final String key, String[] elements, int[] values, ImageIcon[] icons)
@@ -199,23 +214,6 @@ public class Chooser extends NumericalComponent
                     }
                 }
             });
-
-/*
-  combo.addActionListener(new ActionListener()
-  {
-  public void actionPerformed(ActionEvent e)
-  {
-  // This is due to a Java bug.
-  // Unlike other widgets (like JCheckBox), JComboBox calls
-  // the actionlistener even when you programmatically change
-  // its value.  OOPS.
-  if (callActionListener)
-  {
-  setState(combo.getSelectedIndex());
-  }
-  }
-  });
-*/
         }
     
     public boolean isLabelToLeft() { return false; }
@@ -259,7 +257,7 @@ public class Chooser extends NumericalComponent
         
     public void setElements(String _label, String[] elements)
         {
-        setElements(_label, elements, null);
+        setElements(_label, elements, buildDefaultValues(elements));
         }
 
     public void setElements(String _label, String[] elements, int[] values)
@@ -271,38 +269,26 @@ public class Chooser extends NumericalComponent
         for(int i = 0; i < elements.length; i++)
             combo.addItem(elements[i]);
 
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
+        vals = (int[])values.clone();
 
-        if(values == null || values.length != elements.length)
+        int _min = Integer.MAX_VALUE;
+        int _max = Integer.MIN_VALUE;
+        for(int i = 0; i < values.length; i++)
             {
-            vals = new int[elements.length];
-            for(int i = 0; i < vals.length; i++)
-                vals[i] = i;
-
-            min = vals[0];
-            max = vals[vals.length - 1];
-            }
-        else
-            {
-            vals = values;
-            for(int i = 0; i < vals.length; i++)
-                {
-                if(vals[i] < min) min = vals[i];
-                if(vals[i] > max) max = vals[i];
-                }
+            if (_min > values[i]) _min = values[i];
+            if (_max < values[i]) _max = values[i];
             }
 
-        setMin(min);
-        setMax(max);
+        setMin(_min);
+        setMax(_max);
         setCallActionListener(true);
-        
+
         combo.setSelectedIndex(0);
         setState(vals[0]);
         revalidate();
         repaint();
         }
-        
+
     class ComboBoxRenderer extends JLabel implements ListCellRenderer 
         {
         public ComboBoxRenderer() 
