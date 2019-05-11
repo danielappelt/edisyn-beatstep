@@ -2,9 +2,15 @@
 All notable changes to this project will be documented in this file. This change log follows the conventions of [keepachangelog.com](http://keepachangelog.com/).
 
 ## [Unreleased]
+### Added
+- Option to select global MIDI channel
+- Categories for encoders and pads
+
+### Changed
+- Use GridLayout to arrange UI elements
+- Align Chooser with upstream proposal
 - Use Chooser for continuous controllers
-- Use Chooser for MIDI channel and add global chan.
-- Add categories for encoders and pads
+- Use Chooser for MIDI channel
 
 ## [v0.1.1] - 2019-04-16
 ### Changed
