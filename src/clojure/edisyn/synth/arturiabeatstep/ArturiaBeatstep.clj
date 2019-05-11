@@ -139,35 +139,39 @@
               (.add chooser)))
       (.add comps-box))))
 
+;; Use GridLayout for now: https://docs.oracle.com/javase/tutorial/uiswing/layout/grid.html
 (defn create-encoders [this color]
-  (let [vbox (VBox.)]
+  (let [panel (javax.swing.JPanel. (java.awt.GridLayout. 0 2 5 10))]
+    (.setBackground panel (Style/BACKGROUND_COLOR))
     (dorun (for [index (range 16)]
              ;; 0x20-0x2F addresses one of the sixteen encoders
-             (.add vbox (create-type-ui this (str "Encoder " (+ index 1))
-                                        (str (+ 0x20 index) "_" 0x01)
-                                        encoder-types
-                                        (create-encoder-comps this (+ 0x20 index) color)))))
-    vbox))
+             (.add panel (create-type-ui this (str "Encoder " (+ index 1))
+                                         (str (+ 0x20 index) "_" 0x01)
+                                         encoder-types
+                                         (create-encoder-comps this (+ 0x20 index) color)))))
+    panel))
 
 (defn create-pads [this color]
-  (let [vbox (VBox.)]
+  (let [panel (javax.swing.JPanel. (java.awt.GridLayout. 0 2 5 10))]
+    (.setBackground panel (Style/BACKGROUND_COLOR))
     (dorun (for [index (range 16)]
              ;; 0x70-0x7F addresses one of the sixteen pads
-             (.add vbox (create-type-ui this (str "Pad " (+ index 1))
+             (.add panel (create-type-ui this (str "Pad " (+ index 1))
                                         (str (+ 0x70 index) "_" 0x01)
                                         pad-types
                                         (create-pad-comps this (+ 0x70 index) color)))))
-    vbox))
+    panel))
 
 (defn create-buttons [this color]
-  (let [vbox (VBox.)
+  (let [panel (javax.swing.JPanel. (java.awt.GridLayout. 0 2 5 10))
         labels ["Start" "Stop" "Cntrl/Seq" "Ext. Sync" "Recall" "Store" "Shift" "Chan"]]
+    (.setBackground panel (Style/BACKGROUND_COLOR))
     (dorun (for [index (range (count labels))]
-             (.add vbox (create-type-ui this (labels index)
+             (.add panel (create-type-ui this (labels index)
                                         (str (+ 0x58 index) "_" 0x01)
                                         pad-types
                                         (create-pad-comps this (+ 0x58 index) color)))))
-    vbox))
+    panel))
 
 (defn beatstep-setup
   "This post init function for the namespace is used to implement the editor's construction."
