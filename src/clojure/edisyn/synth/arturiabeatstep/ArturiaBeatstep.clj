@@ -67,8 +67,8 @@
 ;; Note off: 0a 03, 0a 07, 0a 0f, 0a 1f, 0a 3f, 0b 01, 0b 03, 0b 07, 0b 0f, 0b 1f, 0b 3f
 
 (def encoder-types [{:label "Off", :value 0x00, :comps []}
-                    {:label "CC", :value 0x01, :comps [:channel :cc :low :high :behaviour]}
-                    {:label "RPN/NRPN", :value 0x04, :comps [:channel :coarse :lsb :msb :param-type]}])
+                    {:label "CC", :value 0x01, :comps [[:channel :cc] :low :high [:behaviour]]}
+                    {:label "RPN/NRPN", :value 0x04, :comps [[:channel :coarse] :lsb :msb [:param-type]]}])
 ;; TODO: low/high values are only relevant for Absolute mode
 (def encoder-behaviour (into-array ["Absolute" "Relative (64)" "Relative (0)" "Relative (16)"]))
 ;; TODO: coarseness determines whether MSB or LSB of NRPN/RPN is sent?
@@ -95,11 +95,11 @@
     comps))
 
 (def pad-types [{:label "Off", :value 0x00, :comps []}
-                {:label "MMC", :value 0x07, :comps [:command]}
-                {:label "CC", :value 0x08, :comps [:channel :cc :on :off :behaviour]}
-                {:label "Silent CC", :value 0x01, :comps [:channel :cc :on :off :behaviour]}
-                {:label "Note", :value 0x09, :comps [:channel :note :behaviour]}
-                {:label "Program Change", :value 0x0B, :comps [:channel :prgchange :lsb :msb]}])
+                {:label "MMC", :value 0x07, :comps [[:command]]}
+                {:label "CC", :value 0x08, :comps [[:channel :cc] :on :off [:behaviour]]}
+                {:label "Silent CC", :value 0x01, :comps [[:channel :cc] :on :off [:behaviour]]}
+                {:label "Note", :value 0x09, :comps [[:channel] :note [:behaviour]]}
+                {:label "Program Change", :value 0x0B, :comps [[:channel] :prgchange :lsb :msb]}])
 ;; We added None/0 in order to have real values start from 1
 (def mmc-commands (into-array ["None" "Stop" "Play" "Deferred Play" "FastForward"
                                "Rewind" "Record Strobe" "Record Exit" "Record Ready"
@@ -122,6 +122,15 @@
    :msb (LabelledDial. "Bank MSB" this (str index "_" 0x05) color 0 127)
    :behaviour (Chooser. "Behaviour" this (str index "_" 0x06) pad-behaviour)})
 
+(defn- get-comp [comps entry]
+  (if (vector? entry)
+    ;; Create a vbox containing entry's contents
+    (let [vbox (VBox.)]
+      (dorun (for [c entry] (.add vbox (get-comp comps c))))
+      vbox)
+    ;; Just return the component
+    (comps entry)))
+
 ;; Display UI depending on chosen type
 (defn create-type-ui [this label key types comps]
   (let [comps-box (HBox.)
@@ -130,7 +139,7 @@
                     ;; Each method fn takes an additional implicit first arg, which is bound to this.
                     (proxy-super update key model)
                     (.removeAll comps-box)
-                    (dorun (for [c (:comps (types (.getIndex this)))] (.add comps-box (comps c))))
+                    (dorun (for [c (:comps (types (.getIndex this)))] (.add comps-box (get-comp comps c))))
                     (.revalidate comps-box)
                     (.repaint this)))]
     (doto (HBox.)
@@ -191,7 +200,7 @@
                  (.add (create-buttons this (Style/COLOR_A)))))
     (.addTab this "Global" (doto (SynthPanel. this)
                              (.add vbox java.awt.BorderLayout/CENTER))))
-  (.addTab this "Encoder" (doto (SynthPanel. this)
+  (.addTab this "Encoders" (doto (SynthPanel. this)
                             (.add (doto (VBox.)
                                     (.add (doto (Category. this "Encoders" (Style/COLOR_B))
                                             (.add (create-encoders this (Style/COLOR_B)))) java.awt.BorderLayout/CENTER)))))
