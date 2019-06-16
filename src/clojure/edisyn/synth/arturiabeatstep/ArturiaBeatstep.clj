@@ -91,6 +91,7 @@
                :param-type (Chooser. "Type" this (str index "_" 0x06) encoder-param-type)
                :behaviour (Chooser. "Behaviour" this (str index "_" 0x06) encoder-behaviour)}]
     ;; Update model value restrictions AFTER ui creation
+    (.setMin (.getModel this) (str index "_" 0x03) 0)
     (.setMax (.getModel this) (str index "_" 0x03) 127)
     comps))
 
@@ -128,8 +129,12 @@
     (let [vbox (VBox.)]
       (dorun (for [c entry] (.add vbox (get-comp comps c))))
       vbox)
-    ;; Just return the component
-    (comps entry)))
+    ;; If entry is a Chooser, apply it's current selection as model state. This allows us to
+    ;; handle separate sysex parameters sharing the same key using separate Chooser instances.
+    (let [c (comps entry)]
+      (if (= (class c) edisyn.gui.Chooser)
+        (.setState c (.getValue c)))
+      c)))
 
 ;; Display UI depending on chosen type
 (defn create-type-ui [this label key types comps]
@@ -195,6 +200,7 @@
                                        (str 0x30 "_" 0x01)
                                        encoder-types
                                        (create-encoder-comps this 0x30 (Style/COLOR_A))))))
+    (.setMin (.getModel this) (str 0x30 "_" 0x03) 0)
     (.setMax (.getModel this) (str 0x30 "_" 0x03) 127)
     (.add vbox (doto (Category. this "Function buttons" (Style/COLOR_A))
                  (.add (create-buttons this (Style/COLOR_A)))))

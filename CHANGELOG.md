@@ -7,10 +7,14 @@ All notable changes to this project will be documented in this file. This change
 - Categories for encoders and pads
 
 ### Changed
+- Allow to organize elements of a type in VBoxes
 - Use GridLayout to arrange UI elements
 - Align Chooser with upstream proposal
 - Use Chooser for continuous controllers
 - Use Chooser for MIDI channel
+
+### Fixed
+- Fix support for sysex params sharing the same key
 
 ## [v0.1.1] - 2019-04-16
 ### Changed
