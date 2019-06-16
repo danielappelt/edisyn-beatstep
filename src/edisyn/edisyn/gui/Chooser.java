@@ -74,24 +74,27 @@ public class Chooser extends NumericalComponent
         // it's possible that we're sharing a parameter
         // (see for example Blofeld Parameter 9), so here
         // we need to make sure we're within bounds
-        int distance = Integer.MAX_VALUE;
-        int index = 0;
+        if (minExists() && state < getMin())
+            state = getMin();
+        if (maxExists() && state > getMax())
+            state = getMax();
 
-        // look for the next best value..
+        // look for it...
         for(int i = 0; i < vals.length; i++)
-            if(Math.abs(vals[i] - state) < distance)
+            {
+            if (vals[i] == state)
                 {
-                distance = Math.abs(vals[i] - state);
-                index = i;
+                // This is due to a Java bug.
+                // Unlike other widgets (like JCheckBox), JComboBox calls
+                // the actionlistener even when you programmatically change
+                // its value.  OOPS.
+                setCallActionListener(false);
+                combo.setSelectedIndex(i);
+                setCallActionListener(true);
+                return;
                 }
-
-        // This is due to a Java bug.
-        // Unlike other widgets (like JCheckBox), JComboBox calls
-        // the actionlistener even when you programmatically change
-        // its value.  OOPS.
-        setCallActionListener(false);
-        combo.setSelectedIndex(index);
-        setCallActionListener(true);
+            }
+//        System.err.println("Invalid value for " + key + " (" + state + ")");
         }
 
     public Insets getInsets() 
@@ -243,6 +246,11 @@ public class Chooser extends NumericalComponent
         return combo.getSelectedIndex();
         }
         
+    public int getValue()
+        {
+        return vals[getIndex()];
+        }
+
     public void setIndex(int index)
         {
         setCallActionListener(false);
